@@ -62,10 +62,15 @@ def run_simulation():
             updated = probs[i] * mwu_factor
             new_probs[i] = updated / np.sum(updated)
 
-        # 2. Gossip Mixing Layer
+        # 2. Gossip Mixing Layer (Stake-weighted)
         gossip_probs = np.zeros_like(new_probs)
         for i in range(n_nodes):
-            nb_avg = np.mean(new_probs[neighbors[i]], axis=0)
+            neighbor_stakes = stake[neighbors[i]]
+            total_neighbor_stake = np.sum(neighbor_stakes)
+            if total_neighbor_stake > 0:
+                nb_avg = np.average(new_probs[neighbors[i]], weights=neighbor_stakes, axis=0)
+            else:
+                nb_avg = np.mean(new_probs[neighbors[i]], axis=0)
             gossip_probs[i] = (1 - epsilon) * new_probs[i] + epsilon * nb_avg
         probs = gossip_probs
 
