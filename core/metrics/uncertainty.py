@@ -22,7 +22,7 @@ class UncertaintyComputer:
         Epistemic uncertainty = disagreement between distributions.
         """
         if not distributions:
-            return {'uncertainty': 0.0, 'max_disagreement': 0.0}
+            return {"uncertainty": 0.0, "max_disagreement": 0.0}
 
         n_distributions = len(distributions)
         n_hypotheses = len(distributions[0])
@@ -34,7 +34,7 @@ class UncertaintyComputer:
         # Compute pairwise disagreements
         disagreements = []
         for i in range(n_distributions):
-            for j in range(i+1, n_distributions):
+            for j in range(i + 1, n_distributions):
                 # KL divergence as disagreement measure
                 kl = entropy(distributions[i], distributions[j])
                 disagreements.append(kl)
@@ -43,12 +43,12 @@ class UncertaintyComputer:
         variance = np.var(distributions, axis=0)
 
         return {
-            'uncertainty': np.mean(disagreements) if disagreements else 0.0,
-            'max_disagreement': max(disagreements) if disagreements else 0.0,
-            'avg_variance': np.mean(variance),
-            'max_variance': np.max(variance),
-            'n_samples': n_distributions,
-            'n_hypotheses': n_hypotheses
+            "uncertainty": np.mean(disagreements) if disagreements else 0.0,
+            "max_disagreement": max(disagreements) if disagreements else 0.0,
+            "avg_variance": np.mean(variance),
+            "max_variance": np.max(variance),
+            "n_samples": n_distributions,
+            "n_hypotheses": n_hypotheses,
         }
 
     @staticmethod
@@ -68,12 +68,9 @@ class UncertaintyComputer:
         Compute total uncertainty = aleatoric + epistemic.
         """
         epistemic = UncertaintyComputer.epistemic_uncertainty(distributions)
-        aleatoric = np.mean([
-            UncertaintyComputer.aleatoric_uncertainty(d)
-            for d in distributions
-        ])
+        aleatoric = np.mean([UncertaintyComputer.aleatoric_uncertainty(d) for d in distributions])
 
-        return epistemic['uncertainty'] + aleatoric
+        return epistemic["uncertainty"] + aleatoric
 
     @staticmethod
     def disagreement_ratio(distributions: List[np.ndarray]) -> float:
@@ -94,8 +91,7 @@ class UncertaintyComputer:
         return min(1.0, avg_variance / max_variance)
 
     @staticmethod
-    def consensus_stability(distributions: List[np.ndarray],
-                           window: int = 5) -> float:
+    def consensus_stability(distributions: List[np.ndarray], window: int = 5) -> float:
         """
         Compute consensus stability over time.
         """
@@ -105,7 +101,7 @@ class UncertaintyComputer:
         # Compute divergence between consecutive distributions
         divergences = []
         for i in range(len(distributions) - 1):
-            div = entropy(distributions[i], distributions[i+1])
+            div = entropy(distributions[i], distributions[i + 1])
             divergences.append(div)
 
         # Compute average divergence
@@ -115,8 +111,7 @@ class UncertaintyComputer:
         return 1.0 / (1.0 + avg_divergence)
 
     @staticmethod
-    def confidence_interval(distribution: np.ndarray,
-                           confidence: float = 0.95) -> Dict[str, float]:
+    def confidence_interval(distribution: np.ndarray, confidence: float = 0.95) -> Dict[str, float]:
         """
         Compute confidence interval for the maximum hypothesis.
         """
@@ -137,10 +132,10 @@ class UncertaintyComputer:
             n = n_hypotheses[0] + 1
 
         return {
-            'n_hypotheses': n,
-            'confidence': confidence,
-            'prob_mass': cum_prob[n-1] if n <= len(cum_prob) else 1.0,
-            'remaining_uncertainty': 1.0 - cum_prob[n-1] if n <= len(cum_prob) else 0.0
+            "n_hypotheses": n,
+            "confidence": confidence,
+            "prob_mass": cum_prob[n - 1] if n <= len(cum_prob) else 1.0,
+            "remaining_uncertainty": 1.0 - cum_prob[n - 1] if n <= len(cum_prob) else 0.0,
         }
 
 
@@ -174,7 +169,7 @@ class UncertaintyMonitor:
         Get current uncertainty.
         """
         if not self.uncertainty_history:
-            return {'uncertainty': 0.0}
+            return {"uncertainty": 0.0}
         return self.uncertainty_history[-1]
 
     def get_average_uncertainty(self) -> float:
@@ -183,7 +178,7 @@ class UncertaintyMonitor:
         """
         if not self.uncertainty_history:
             return 0.0
-        return np.mean([u['uncertainty'] for u in self.uncertainty_history])
+        return np.mean([u["uncertainty"] for u in self.uncertainty_history])
 
     def get_uncertainty_trend(self) -> float:
         """
@@ -192,7 +187,7 @@ class UncertaintyMonitor:
         if len(self.uncertainty_history) < 2:
             return 0.0
 
-        values = [u['uncertainty'] for u in self.uncertainty_history]
+        values = [u["uncertainty"] for u in self.uncertainty_history]
         x = np.arange(len(values))
         slope = np.polyfit(x, values, 1)[0]
         return slope
@@ -202,17 +197,17 @@ class UncertaintyMonitor:
         Get consensus quality (inverse of uncertainty).
         """
         uncertainty = self.get_current_uncertainty()
-        return 1.0 / (1.0 + uncertainty.get('uncertainty', 0.0))
+        return 1.0 / (1.0 + uncertainty.get("uncertainty", 0.0))
 
     def get_statistics(self) -> Dict[str, Any]:
         """
         Get uncertainty statistics.
         """
         return {
-            'current_uncertainty': self.get_current_uncertainty(),
-            'average_uncertainty': self.get_average_uncertainty(),
-            'uncertainty_trend': self.get_uncertainty_trend(),
-            'consensus_quality': self.get_consensus_quality(),
-            'history_length': len(self.distribution_history),
-            'window_size': self.window_size
+            "current_uncertainty": self.get_current_uncertainty(),
+            "average_uncertainty": self.get_average_uncertainty(),
+            "uncertainty_trend": self.get_uncertainty_trend(),
+            "consensus_quality": self.get_consensus_quality(),
+            "history_length": len(self.distribution_history),
+            "window_size": self.window_size,
         }

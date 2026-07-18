@@ -68,10 +68,7 @@ class KLDivergence:
         for i in range(n):
             for j in range(n):
                 if i != j:
-                    kl_matrix[i, j] = KLDivergence.compute(
-                        distributions[i],
-                        distributions[j]
-                    )
+                    kl_matrix[i, j] = KLDivergence.compute(distributions[i], distributions[j])
                 else:
                     kl_matrix[i, j] = 0.0
 
@@ -89,8 +86,7 @@ class KLDivergence:
             for j in range(n):
                 if i != j:
                     js_matrix[i, j] = KLDivergence.jensen_shannon(
-                        distributions[i],
-                        distributions[j]
+                        distributions[i], distributions[j]
                     )
                 else:
                     js_matrix[i, j] = 0.0
@@ -145,8 +141,7 @@ class DivergenceMonitor:
         slope = np.polyfit(x, self.divergences, 1)[0]
         return slope
 
-    def is_converged(self, tolerance: float = 1e-3,
-                    window: int = 5) -> bool:
+    def is_converged(self, tolerance: float = 1e-3, window: int = 5) -> bool:
         """
         Check if divergence has converged.
         """
@@ -161,11 +156,11 @@ class DivergenceMonitor:
         Get divergence statistics.
         """
         return {
-            'current_divergence': self.get_current_divergence(),
-            'average_divergence': self.get_average_divergence(),
-            'divergence_trend': self.get_divergence_trend(),
-            'is_converged': self.is_converged(),
-            'history_length': len(self.history)
+            "current_divergence": self.get_current_divergence(),
+            "average_divergence": self.get_average_divergence(),
+            "divergence_trend": self.get_divergence_trend(),
+            "is_converged": self.is_converged(),
+            "history_length": len(self.history),
         }
 
 
@@ -185,10 +180,12 @@ class DivergenceOptimizer:
         return vector / np.sum(vector)
 
     @staticmethod
-    def optimize_kl(target: np.ndarray,
-                   initial: Optional[np.ndarray] = None,
-                   learning_rate: float = 0.1,
-                   iterations: int = 100) -> np.ndarray:
+    def optimize_kl(
+        target: np.ndarray,
+        initial: Optional[np.ndarray] = None,
+        learning_rate: float = 0.1,
+        iterations: int = 100,
+    ) -> np.ndarray:
         """
         Optimize distribution to minimize KL divergence from target.
         """
@@ -207,10 +204,12 @@ class DivergenceOptimizer:
         return p
 
     @staticmethod
-    def optimize_js(target: np.ndarray,
-                   initial: Optional[np.ndarray] = None,
-                   learning_rate: float = 0.1,
-                   iterations: int = 100) -> np.ndarray:
+    def optimize_js(
+        target: np.ndarray,
+        initial: Optional[np.ndarray] = None,
+        learning_rate: float = 0.1,
+        iterations: int = 100,
+    ) -> np.ndarray:
         """
         Optimize distribution to minimize Jensen-Shannon divergence.
         """

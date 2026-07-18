@@ -23,6 +23,7 @@ from pathlib import Path
 @dataclass
 class MemoryEntry:
     """Single entry in memory."""
+
     timestamp: datetime
     data: Any
     metadata: Dict[str, Any] = field(default_factory=dict)
@@ -32,6 +33,7 @@ class MemoryEntry:
 @dataclass
 class HypothesisMemory:
     """Memory entry for a hypothesis."""
+
     hypothesis_id: str
     content: str
     features: np.ndarray
@@ -45,6 +47,7 @@ class HypothesisMemory:
 @dataclass
 class ConsensusMemory:
     """Memory entry for consensus round."""
+
     round_id: str
     start_time: datetime
     end_time: datetime
@@ -59,6 +62,7 @@ class ConsensusMemory:
 @dataclass
 class StateMemory:
     """Memory entry for node state."""
+
     node_id: str
     iteration: int
     probabilities: np.ndarray
@@ -72,8 +76,7 @@ class Memory:
     Persistent memory manager for Gravit Grover nodes.
     """
 
-    def __init__(self, storage_path: Optional[str] = None,
-                 max_size: int = 10000):
+    def __init__(self, storage_path: Optional[str] = None, max_size: int = 10000):
         self.storage_path = Path(storage_path) if storage_path else None
         self.max_size = max_size
         self.hypotheses: List[HypothesisMemory] = []
@@ -158,9 +161,11 @@ class Memory:
         self.parameters[name] = params
         if self.storage_path:
             path = self.storage_path / "parameters" / f"{name}.json"
-            with open(path, 'w') as f:
-                json.dump({k: v.tolist() if isinstance(v, np.ndarray) else v
-                          for k, v in params.items()}, f)
+            with open(path, "w") as f:
+                json.dump(
+                    {k: v.tolist() if isinstance(v, np.ndarray) else v for k, v in params.items()},
+                    f,
+                )
 
     def load_parameters(self, name: str) -> Optional[Dict[str, Any]]:
         """Load parameters from memory."""
@@ -170,26 +175,26 @@ class Memory:
         if self.storage_path:
             path = self.storage_path / "parameters" / f"{name}.json"
             if path.exists():
-                with open(path, 'r') as f:
+                with open(path, "r") as f:
                     return json.load(f)
         return None
 
     def _save_hypothesis(self, hypothesis: HypothesisMemory):
         """Save hypothesis to disk."""
         path = self.storage_path / "hypotheses" / f"{hypothesis.hypothesis_id}.pkl"
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             pickle.dump(hypothesis, f)
 
     def _save_consensus(self, round_data: ConsensusMemory):
         """Save consensus round to disk."""
         path = self.storage_path / "consensus" / f"{round_data.round_id}.pkl"
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             pickle.dump(round_data, f)
 
     def _save_state(self, state: StateMemory):
         """Save state to disk."""
         path = self.storage_path / "states" / f"{state.node_id}_{state.iteration}.pkl"
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             pickle.dump(state, f)
 
     def load_all_hypotheses(self) -> List[HypothesisMemory]:
@@ -200,7 +205,7 @@ class Memory:
         loaded = []
         path = self.storage_path / "hypotheses"
         for file in path.glob("*.pkl"):
-            with open(file, 'rb') as f:
+            with open(file, "rb") as f:
                 loaded.append(pickle.load(f))
         return loaded
 
@@ -213,6 +218,7 @@ class Memory:
 
         if self.storage_path:
             import shutil
+
             shutil.rmtree(self.storage_path / "hypotheses")
             shutil.rmtree(self.storage_path / "consensus")
             shutil.rmtree(self.storage_path / "states")
@@ -222,13 +228,13 @@ class Memory:
     def get_statistics(self) -> Dict[str, Any]:
         """Get memory statistics."""
         return {
-            'total_hypotheses': len(self.hypotheses),
-            'total_consensus_rounds': len(self.consensus_rounds),
-            'total_states': len(self.state_history),
-            'parameters_count': len(self.parameters),
-            'max_size': self.max_size,
-            'storage_path': str(self.storage_path) if self.storage_path else None,
-            'initialized': self.initialized
+            "total_hypotheses": len(self.hypotheses),
+            "total_consensus_rounds": len(self.consensus_rounds),
+            "total_states": len(self.state_history),
+            "parameters_count": len(self.parameters),
+            "max_size": self.max_size,
+            "storage_path": str(self.storage_path) if self.storage_path else None,
+            "initialized": self.initialized,
         }
 
 
@@ -241,31 +247,33 @@ class CheckpointManager:
         self.checkpoint_dir = Path(checkpoint_dir)
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-    def save_checkpoint(self,
-                       model_state: Dict[str, Any],
-                       optimizer_state: Dict[str, Any],
-                       step: int,
-                       metadata: Dict[str, Any] = None) -> str:
+    def save_checkpoint(
+        self,
+        model_state: Dict[str, Any],
+        optimizer_state: Dict[str, Any],
+        step: int,
+        metadata: Dict[str, Any] = None,
+    ) -> str:
         """Save model checkpoint."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         checkpoint_path = self.checkpoint_dir / f"checkpoint_{step}_{timestamp}.pt"
 
         checkpoint = {
-            'model_state': model_state,
-            'optimizer_state': optimizer_state,
-            'step': step,
-            'timestamp': timestamp,
-            'metadata': metadata or {}
+            "model_state": model_state,
+            "optimizer_state": optimizer_state,
+            "step": step,
+            "timestamp": timestamp,
+            "metadata": metadata or {},
         }
 
-        with open(checkpoint_path, 'wb') as f:
+        with open(checkpoint_path, "wb") as f:
             pickle.dump(checkpoint, f)
 
         return str(checkpoint_path)
 
     def load_checkpoint(self, checkpoint_path: str) -> Dict[str, Any]:
         """Load model checkpoint."""
-        with open(checkpoint_path, 'rb') as f:
+        with open(checkpoint_path, "rb") as f:
             return pickle.load(f)
 
     def get_latest_checkpoint(self) -> Optional[str]:
@@ -279,14 +287,16 @@ class CheckpointManager:
         """List all checkpoints with metadata."""
         checkpoints = []
         for path in sorted(self.checkpoint_dir.glob("checkpoint_*.pt")):
-            with open(path, 'rb') as f:
+            with open(path, "rb") as f:
                 data = pickle.load(f)
-                checkpoints.append({
-                    'path': str(path),
-                    'step': data['step'],
-                    'timestamp': data['timestamp'],
-                    'metadata': data.get('metadata', {})
-                })
+                checkpoints.append(
+                    {
+                        "path": str(path),
+                        "step": data["step"],
+                        "timestamp": data["timestamp"],
+                        "metadata": data.get("metadata", {}),
+                    }
+                )
         return checkpoints
 
     def delete_checkpoint(self, checkpoint_path: str):

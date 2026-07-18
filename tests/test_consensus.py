@@ -45,9 +45,9 @@ class TestGossipProtocol(unittest.TestCase):
     def test_get_statistics(self):
         """Test statistics."""
         stats = self.protocol.get_statistics()
-        self.assertEqual(stats['node_id'], self.node_id)
-        self.assertEqual(stats['peers'], 0)
-        self.assertEqual(stats['version'], 0)
+        self.assertEqual(stats["node_id"], self.node_id)
+        self.assertEqual(stats["peers"], 0)
+        self.assertEqual(stats["version"], 0)
 
 
 class TestMixingMatrix(unittest.TestCase):
@@ -55,11 +55,7 @@ class TestMixingMatrix(unittest.TestCase):
 
     def setUp(self):
         """Set up test data."""
-        self.adjacency = np.array([
-            [0, 1, 1],
-            [1, 0, 1],
-            [1, 1, 0]
-        ])
+        self.adjacency = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]])
         self.mixing = MixingMatrix(self.adjacency)
 
     def test_create_metropolis_hastings(self):
@@ -95,11 +91,7 @@ class TestSpectralAnalyzer(unittest.TestCase):
 
     def setUp(self):
         """Set up test data."""
-        self.matrix = np.array([
-            [0.6, 0.2, 0.2],
-            [0.2, 0.6, 0.2],
-            [0.2, 0.2, 0.6]
-        ])
+        self.matrix = np.array([[0.6, 0.2, 0.2], [0.2, 0.6, 0.2], [0.2, 0.2, 0.6]])
         self.analyzer = SpectralAnalyzer(self.matrix)
 
     def test_compute_eigenvalues(self):
@@ -122,8 +114,8 @@ class TestSpectralAnalyzer(unittest.TestCase):
     def test_analyze_connectivity(self):
         """Test connectivity analysis."""
         analysis = self.analyzer.analyze_connectivity()
-        self.assertIn('is_connected', analysis)
-        self.assertTrue(analysis['is_connected'])
+        self.assertIn("is_connected", analysis)
+        self.assertTrue(analysis["is_connected"])
 
 
 class TestSecurity(unittest.TestCase):
@@ -152,15 +144,15 @@ class TestSecurity(unittest.TestCase):
         """Test identity verification."""
         self.identity_verifier.register_identity("node1", {"id": "node1"})
         status = self.identity_verifier.get_identity_status("node1")
-        self.assertEqual(status['status'], 'active')
+        self.assertEqual(status["status"], "active")
 
     def test_revocation(self):
         """Test identity revocation."""
         self.identity_verifier.register_identity("node1", {"id": "node1"})
         self.identity_verifier.revoke_identity("node1", "test")
         status = self.identity_verifier.get_identity_status("node1")
-        self.assertEqual(status['status'], 'revoked')
+        self.assertEqual(status["status"], "revoked")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

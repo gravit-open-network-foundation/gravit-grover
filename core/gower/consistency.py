@@ -13,8 +13,9 @@ from scipy.stats import zscore
 @dataclass
 class ConsistencyConfig:
     """Configuration for consistency checking."""
+
     threshold: float = 0.7
-    method: str = 'mean'  # mean, median, percentile
+    method: str = "mean"  # mean, median, percentile
     percentile: float = 0.25
     robust: bool = True
     min_references: int = 3
@@ -28,9 +29,12 @@ class ConsistencyChecker:
     def __init__(self, config: Optional[ConsistencyConfig] = None):
         self.config = config or ConsistencyConfig()
 
-    def compute_consistency(self, hypothesis: np.ndarray,
-                           reference_set: np.ndarray,
-                           similarity_matrix: Optional[np.ndarray] = None) -> float:
+    def compute_consistency(
+        self,
+        hypothesis: np.ndarray,
+        reference_set: np.ndarray,
+        similarity_matrix: Optional[np.ndarray] = None,
+    ) -> float:
         """
         Compute consistency of a hypothesis with reference set.
         """
@@ -48,11 +52,11 @@ class ConsistencyChecker:
             return 0.0
 
         # Compute consistency score
-        if self.config.method == 'mean':
+        if self.config.method == "mean":
             score = np.mean(similarities)
-        elif self.config.method == 'median':
+        elif self.config.method == "median":
             score = np.median(similarities)
-        elif self.config.method == 'percentile':
+        elif self.config.method == "percentile":
             score = np.percentile(similarities, self.config.percentile * 100)
         else:
             score = np.mean(similarities)
@@ -63,9 +67,9 @@ class ConsistencyChecker:
 
         return float(np.clip(score, 0.0, 1.0))
 
-    def compute_consistency_matrix(self,
-                                   hypotheses: np.ndarray,
-                                   similarity_matrix: np.ndarray) -> np.ndarray:
+    def compute_consistency_matrix(
+        self, hypotheses: np.ndarray, similarity_matrix: np.ndarray
+    ) -> np.ndarray:
         """
         Compute consistency matrix for all hypotheses.
         """
@@ -75,14 +79,11 @@ class ConsistencyChecker:
         for i in range(n):
             for j in range(n):
                 if i != j:
-                    consistency_matrix[i, j] = self.compute_consistency(
-                        i, [j], similarity_matrix
-                    )
+                    consistency_matrix[i, j] = self.compute_consistency(i, [j], similarity_matrix)
 
         return consistency_matrix
 
-    def _compute_similarities(self, hypothesis: int,
-                             references: np.ndarray) -> List[float]:
+    def _compute_similarities(self, hypothesis: int, references: np.ndarray) -> List[float]:
         """Compute similarities between hypothesis and references."""
         # Placeholder: Implement actual similarity computation
         return [0.5 + 0.5 * np.random.random() for _ in references]
@@ -96,10 +97,12 @@ class ConsistencyChecker:
             return 1.0 / (1.0 + np.exp(-z))
         return score
 
-    def get_consistent_subset(self,
-                              hypotheses: List[str],
-                              similarity_matrix: np.ndarray,
-                              threshold: Optional[float] = None) -> Tuple[List[str], np.ndarray]:
+    def get_consistent_subset(
+        self,
+        hypotheses: List[str],
+        similarity_matrix: np.ndarray,
+        threshold: Optional[float] = None,
+    ) -> Tuple[List[str], np.ndarray]:
         """
         Get subset of consistent hypotheses.
         """
@@ -121,10 +124,9 @@ class ConsistencyChecker:
 
         return consistent_hypotheses, consistency_scores
 
-    def detect_outliers(self,
-                        hypotheses: List[str],
-                        similarity_matrix: np.ndarray,
-                        n_sigma: float = 2.0) -> Tuple[List[str], List[str]]:
+    def detect_outliers(
+        self, hypotheses: List[str], similarity_matrix: np.ndarray, n_sigma: float = 2.0
+    ) -> Tuple[List[str], List[str]]:
         """
         Detect outlier hypotheses using statistical methods.
         """
@@ -182,7 +184,7 @@ class ConsistencyValidator:
         if len(self.history) < self.window_size // 2:
             return True
 
-        values = [h[hypothesis_idx] for h in self.history[-self.window_size:]]
+        values = [h[hypothesis_idx] for h in self.history[-self.window_size :]]
         std = np.std(values)
         return std < threshold
 
@@ -194,21 +196,19 @@ class ConsistencyValidator:
             return {}
 
         metrics = {
-            'window_size': self.window_size,
-            'history_length': len(self.history),
-            'avg_consistency': np.mean(self.history[-1]),
-            'std_consistency': np.std(self.history[-1]),
-            'min_consistency': np.min(self.history[-1]),
-            'max_consistency': np.max(self.history[-1])
+            "window_size": self.window_size,
+            "history_length": len(self.history),
+            "avg_consistency": np.mean(self.history[-1]),
+            "std_consistency": np.std(self.history[-1]),
+            "min_consistency": np.min(self.history[-1]),
+            "max_consistency": np.max(self.history[-1]),
         }
 
         # Add trend for each hypothesis
         n_hypotheses = len(self.history[-1])
-        metrics['trends'] = [self.get_trend(i) for i in range(n_hypotheses)]
+        metrics["trends"] = [self.get_trend(i) for i in range(n_hypotheses)]
 
         # Add stability
-        metrics['stability'] = [
-            self.is_stable(i) for i in range(n_hypotheses)
-        ]
+        metrics["stability"] = [self.is_stable(i) for i in range(n_hypotheses)]
 
         return metrics

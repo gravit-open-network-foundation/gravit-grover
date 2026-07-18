@@ -16,8 +16,7 @@ class WassersteinDistance:
     """
 
     @staticmethod
-    def compute_1d(p: np.ndarray, q: np.ndarray,
-                   support: Optional[np.ndarray] = None) -> float:
+    def compute_1d(p: np.ndarray, q: np.ndarray, support: Optional[np.ndarray] = None) -> float:
         """
         Compute 1D Wasserstein distance.
 
@@ -42,9 +41,12 @@ class WassersteinDistance:
         return np.sum(np.abs(cdf_p - cdf_q)) * dx
 
     @staticmethod
-    def compute_2d(p: np.ndarray, q: np.ndarray,
-                   support_p: Optional[np.ndarray] = None,
-                   support_q: Optional[np.ndarray] = None) -> float:
+    def compute_2d(
+        p: np.ndarray,
+        q: np.ndarray,
+        support_p: Optional[np.ndarray] = None,
+        support_q: Optional[np.ndarray] = None,
+    ) -> float:
         """
         Compute 2D Wasserstein distance using linear programming.
         """
@@ -61,7 +63,7 @@ class WassersteinDistance:
             support_q = np.array([[i, 0] for i in range(len(q))])
 
         # Compute cost matrix
-        cost_matrix = cdist(support_p, support_q, metric='euclidean')
+        cost_matrix = cdist(support_p, support_q, metric="euclidean")
 
         # Solve transportation problem
         row_ind, col_ind = linear_sum_assignment(cost_matrix)
@@ -71,9 +73,9 @@ class WassersteinDistance:
         return distance
 
     @staticmethod
-    def compute_sinkhorn(p: np.ndarray, q: np.ndarray,
-                        epsilon: float = 0.1,
-                        max_iterations: int = 100) -> float:
+    def compute_sinkhorn(
+        p: np.ndarray, q: np.ndarray, epsilon: float = 0.1, max_iterations: int = 100
+    ) -> float:
         """
         Compute Sinkhorn distance (entropy-regularized Wasserstein).
         """
@@ -119,8 +121,7 @@ class WassersteinDistance:
             for j in range(n):
                 if i != j:
                     w_matrix[i, j] = WassersteinDistance.compute_1d(
-                        distributions[i],
-                        distributions[j]
+                        distributions[i], distributions[j]
                     )
                 else:
                     w_matrix[i, j] = 0.0
@@ -145,10 +146,7 @@ class WassersteinMonitor:
         self.history.append(distribution.copy())
 
         if self.reference is not None:
-            distance = WassersteinDistance.compute_1d(
-                distribution,
-                self.reference
-            )
+            distance = WassersteinDistance.compute_1d(distribution, self.reference)
             self.distances.append(distance)
 
     def get_current_distance(self) -> float:
@@ -192,11 +190,11 @@ class WassersteinMonitor:
         Get Wasserstein statistics.
         """
         return {
-            'current_distance': self.get_current_distance(),
-            'average_distance': self.get_average_distance(),
-            'distance_trend': self.get_distance_trend(),
-            'similarity': self.get_wasserstein_similarity(),
-            'history_length': len(self.history)
+            "current_distance": self.get_current_distance(),
+            "average_distance": self.get_average_distance(),
+            "distance_trend": self.get_distance_trend(),
+            "similarity": self.get_wasserstein_similarity(),
+            "history_length": len(self.history),
         }
 
 
@@ -216,10 +214,12 @@ class EarthMoverOptimizer:
         return vector / np.sum(vector)
 
     @staticmethod
-    def optimize_wasserstein(target: np.ndarray,
-                            initial: Optional[np.ndarray] = None,
-                            learning_rate: float = 0.01,
-                            iterations: int = 100) -> np.ndarray:
+    def optimize_wasserstein(
+        target: np.ndarray,
+        initial: Optional[np.ndarray] = None,
+        learning_rate: float = 0.01,
+        iterations: int = 100,
+    ) -> np.ndarray:
         """
         Optimize distribution to minimize Wasserstein distance from target.
         """

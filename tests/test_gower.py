@@ -15,12 +15,8 @@ class TestGowerDistance(unittest.TestCase):
 
     def setUp(self):
         """Set up test data."""
-        self.features = np.array([
-            [1.0, 2.0, 3.0],
-            [4.0, 5.0, 6.0],
-            [7.0, 8.0, 9.0]
-        ])
-        self.feature_types = ['numeric', 'numeric', 'numeric']
+        self.features = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
+        self.feature_types = ["numeric", "numeric", "numeric"]
         self.config = GowerConfig(normalize_numeric=True)
         self.gower = GowerDistance(self.config)
         self.gower.fit(self.features, self.feature_types)
@@ -66,12 +62,8 @@ class TestSimilarityComputer(unittest.TestCase):
 
     def setUp(self):
         """Set up test data."""
-        self.features = np.array([
-            [1.0, 2.0],
-            [3.0, 4.0],
-            [5.0, 6.0]
-        ])
-        self.config = SimilarityConfig(method='cosine')
+        self.features = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+        self.config = SimilarityConfig(method="cosine")
         self.computer = SimilarityComputer(self.config)
         self.computer.fit(self.features)
 
@@ -94,12 +86,8 @@ class TestHierarchicalClusterer(unittest.TestCase):
 
     def setUp(self):
         """Set up test data."""
-        self.similarity_matrix = np.array([
-            [1.0, 0.8, 0.2],
-            [0.8, 1.0, 0.3],
-            [0.2, 0.3, 1.0]
-        ])
-        self.config = ClusteringConfig(method='average', max_clusters=2)
+        self.similarity_matrix = np.array([[1.0, 0.8, 0.2], [0.8, 1.0, 0.3], [0.2, 0.3, 1.0]])
+        self.config = ClusteringConfig(method="average", max_clusters=2)
         self.clusterer = HierarchicalClusterer(self.config)
 
     def test_fit(self):
@@ -128,36 +116,32 @@ class TestConsistencyChecker(unittest.TestCase):
     def setUp(self):
         """Set up test data."""
         self.hypotheses = ["H1", "H2", "H3", "H4", "H5"]
-        self.similarity_matrix = np.array([
-            [1.0, 0.9, 0.1, 0.2, 0.3],
-            [0.9, 1.0, 0.2, 0.3, 0.4],
-            [0.1, 0.2, 1.0, 0.8, 0.7],
-            [0.2, 0.3, 0.8, 1.0, 0.9],
-            [0.3, 0.4, 0.7, 0.9, 1.0]
-        ])
+        self.similarity_matrix = np.array(
+            [
+                [1.0, 0.9, 0.1, 0.2, 0.3],
+                [0.9, 1.0, 0.2, 0.3, 0.4],
+                [0.1, 0.2, 1.0, 0.8, 0.7],
+                [0.2, 0.3, 0.8, 1.0, 0.9],
+                [0.3, 0.4, 0.7, 0.9, 1.0],
+            ]
+        )
         self.config = ConsistencyConfig(threshold=0.5)
         self.checker = ConsistencyChecker(self.config)
 
     def test_get_consistent_subset(self):
         """Test getting consistent subset."""
-        subset, scores = self.checker.get_consistent_subset(
-            self.hypotheses,
-            self.similarity_matrix
-        )
+        subset, scores = self.checker.get_consistent_subset(self.hypotheses, self.similarity_matrix)
         self.assertGreaterEqual(len(subset), 0)
         self.assertLessEqual(len(subset), len(self.hypotheses))
         self.assertEqual(len(scores), len(self.hypotheses))
 
     def test_detect_outliers(self):
         """Test outlier detection."""
-        inliers, outliers = self.checker.detect_outliers(
-            self.hypotheses,
-            self.similarity_matrix
-        )
+        inliers, outliers = self.checker.detect_outliers(self.hypotheses, self.similarity_matrix)
         self.assertGreaterEqual(len(inliers), 0)
         self.assertGreaterEqual(len(outliers), 0)
         self.assertEqual(len(inliers) + len(outliers), len(self.hypotheses))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

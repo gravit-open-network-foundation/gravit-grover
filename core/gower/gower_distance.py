@@ -24,6 +24,7 @@ from scipy.spatial.distance import pdist, squareform
 @dataclass
 class GowerConfig:
     """Configuration for Gower Similarity"""
+
     numeric_weights: Optional[List[float]] = None
     categorical_weights: Optional[List[float]] = None
     normalize_numeric: bool = True
@@ -65,11 +66,11 @@ class GowerDistance:
 
         # Normalize numeric features
         if self.config.normalize_numeric:
-            numeric_indices = [i for i, t in enumerate(feature_types) if t == 'numeric']
+            numeric_indices = [i for i, t in enumerate(feature_types) if t == "numeric"]
             if numeric_indices:
                 scaler = StandardScaler()
                 scaler.fit(data[:, numeric_indices])
-                self.scalers['numeric'] = scaler
+                self.scalers["numeric"] = scaler
 
         return self
 
@@ -93,7 +94,7 @@ class GowerDistance:
         for k in range(n_features):
             feature_type = self.feature_types[k]
 
-            if feature_type == 'numeric':
+            if feature_type == "numeric":
                 # Normalized absolute distance
                 if self.config.normalize_numeric:
                     # Apply standardization
@@ -103,11 +104,11 @@ class GowerDistance:
                     range_val = 1.0
                 dist = abs(x[k] - y[k]) / range_val
 
-            elif feature_type == 'categorical':
+            elif feature_type == "categorical":
                 # Distance: 0 if equal, 1 if different
                 dist = 0.0 if x[k] == y[k] else 1.0
 
-            elif feature_type == 'ordinal':
+            elif feature_type == "ordinal":
                 # For ordinal: use ranks
                 if self.config.use_rank:
                     # Simplified: difference in ranks
@@ -166,9 +167,9 @@ class GowerDistance:
         weights = []
         for i in range(n_features):
             feature_type = self.feature_types[i]
-            if feature_type == 'numeric':
+            if feature_type == "numeric":
                 weights.append(self.config.numeric_weights[i])
-            elif feature_type == 'categorical':
+            elif feature_type == "categorical":
                 weights.append(self.config.categorical_weights[i])
             else:
                 weights.append(1.0)
@@ -184,8 +185,7 @@ class ConsistencyScorer:
         self.gower = gower
         self.threshold = threshold
 
-    def compute_consistency(self, hypothesis: np.ndarray,
-                           reference_set: np.ndarray) -> float:
+    def compute_consistency(self, hypothesis: np.ndarray, reference_set: np.ndarray) -> float:
         """
         Compute consistency of a hypothesis with a reference set.
 
@@ -216,8 +216,7 @@ class ConsistencyScorer:
             for j in range(n):
                 if i != j:
                     consistency_matrix[i, j] = self.compute_consistency(
-                        hypotheses[i],
-                        hypotheses[j].reshape(1, -1)
+                        hypotheses[i], hypotheses[j].reshape(1, -1)
                     )
 
         return consistency_matrix

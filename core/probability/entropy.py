@@ -35,7 +35,7 @@ class EntropyComputer:
         if alpha == 1:
             return EntropyComputer.shannon_entropy(probs)
 
-        sum_pow = np.sum(probs ** alpha)
+        sum_pow = np.sum(probs**alpha)
         if sum_pow == 0:
             return 0.0
         return (1.0 / (1.0 - alpha)) * np.log(sum_pow)
@@ -48,7 +48,7 @@ class EntropyComputer:
         S_q(p) = (1/(q-1)) * (1 - Σ_i p_i^q)
         """
         probs = np.clip(probabilities, 1e-10, 1.0)
-        sum_pow = np.sum(probs ** q)
+        sum_pow = np.sum(probs**q)
         return (1.0 / (q - 1.0)) * (1.0 - sum_pow)
 
     @staticmethod
@@ -79,9 +79,9 @@ class EntropyComputer:
         return -np.sum(joint * np.log(cond))
 
     @staticmethod
-    def mutual_information(joint: np.ndarray,
-                          marginal_x: np.ndarray,
-                          marginal_y: np.ndarray) -> float:
+    def mutual_information(
+        joint: np.ndarray, marginal_x: np.ndarray, marginal_y: np.ndarray
+    ) -> float:
         """
         Compute mutual information.
 
@@ -177,13 +177,13 @@ class EntropyMonitor:
         Get entropy statistics.
         """
         return {
-            'current_entropy': self.get_current_entropy(),
-            'average_entropy': self.get_average_entropy(),
-            'entropy_trend': self.get_entropy_trend(),
-            'entropy_variation': self.get_entropy_variation(),
-            'convergence_score': self.get_convergence_score(),
-            'history_length': len(self.history),
-            'window_size': self.window_size
+            "current_entropy": self.get_current_entropy(),
+            "average_entropy": self.get_average_entropy(),
+            "entropy_trend": self.get_entropy_trend(),
+            "entropy_variation": self.get_entropy_variation(),
+            "convergence_score": self.get_convergence_score(),
+            "history_length": len(self.history),
+            "window_size": self.window_size,
         }
 
 
@@ -193,8 +193,7 @@ class EntropyRegularizer:
     """
 
     @staticmethod
-    def add_uniform_regularization(probabilities: np.ndarray,
-                                  alpha: float = 0.1) -> np.ndarray:
+    def add_uniform_regularization(probabilities: np.ndarray, alpha: float = 0.1) -> np.ndarray:
         """
         Add uniform regularization.
 
@@ -205,8 +204,7 @@ class EntropyRegularizer:
         return (1 - alpha) * probabilities + alpha * uniform
 
     @staticmethod
-    def add_entropy_penalty(probabilities: np.ndarray,
-                           lambda_reg: float = 0.1) -> np.ndarray:
+    def add_entropy_penalty(probabilities: np.ndarray, lambda_reg: float = 0.1) -> np.ndarray:
         """
         Add entropy penalty to distribution.
 
@@ -218,15 +216,12 @@ class EntropyRegularizer:
 
         # If entropy is too low, add regularization
         if entropy < max_entropy * 0.5:
-            return EntropyRegularizer.add_uniform_regularization(
-                probabilities, lambda_reg
-            )
+            return EntropyRegularizer.add_uniform_regularization(probabilities, lambda_reg)
 
         return probabilities
 
     @staticmethod
-    def temper_distribution(probabilities: np.ndarray,
-                           temperature: float = 1.0) -> np.ndarray:
+    def temper_distribution(probabilities: np.ndarray, temperature: float = 1.0) -> np.ndarray:
         """
         Temper probability distribution.
 

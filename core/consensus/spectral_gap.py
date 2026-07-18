@@ -51,9 +51,7 @@ class SpectralAnalyzer:
         # Convert to sparse if large
         if len(self.matrix) > 1000:
             matrix_sparse = csr_matrix(self.matrix)
-            self.eigenvalues, self.eigenvectors = eigs(
-                matrix_sparse, k=k, which='LR'
-            )
+            self.eigenvalues, self.eigenvectors = eigs(matrix_sparse, k=k, which="LR")
         else:
             self.eigenvalues, self.eigenvectors = eigh(self.matrix)
             # Sort descending and take top k
@@ -94,7 +92,9 @@ class SpectralAnalyzer:
             return 1.0
 
         eigenvalues = np.sort(self.eigenvalues)
-        self.condition_number = eigenvalues[-1] / eigenvalues[0] if eigenvalues[0] != 0 else float('inf')
+        self.condition_number = (
+            eigenvalues[-1] / eigenvalues[0] if eigenvalues[0] != 0 else float("inf")
+        )
         return self.condition_number
 
     def compute_fiedler_value(self) -> float:
@@ -121,7 +121,7 @@ class SpectralAnalyzer:
         """
         spectral_gap = self.compute_spectral_gap()
         if spectral_gap == 0:
-            return float('inf')
+            return float("inf")
         return np.log(1.0 / epsilon) / spectral_gap
 
     def compute_mixing_time(self, epsilon: float = 1e-3) -> float:
@@ -155,12 +155,12 @@ class SpectralAnalyzer:
         is_regular = np.allclose(degrees, degrees[0])
 
         return {
-            'is_connected': bool(is_connected),
-            'is_regular': bool(is_regular),
-            'degree_variation': float(np.std(degrees)),
-            'spectral_gap': self.compute_spectral_gap(),
-            'algebraic_connectivity': self.compute_algebraic_connectivity(),
-            'n_components': len(eigenvalues[eigenvalues < 1e-10]) + 1
+            "is_connected": bool(is_connected),
+            "is_regular": bool(is_regular),
+            "degree_variation": float(np.std(degrees)),
+            "spectral_gap": self.compute_spectral_gap(),
+            "algebraic_connectivity": self.compute_algebraic_connectivity(),
+            "n_components": len(eigenvalues[eigenvalues < 1e-10]) + 1,
         }
 
     def get_convergence_rate(self) -> float:
@@ -178,7 +178,7 @@ class SpectralAnalyzer:
         """
         algebraic_connectivity = self.compute_algebraic_connectivity()
         if algebraic_connectivity == 0:
-            return float('inf')
+            return float("inf")
         return np.log(n_nodes) / algebraic_connectivity
 
 
@@ -188,18 +188,18 @@ class SpectralPlotter:
     """
 
     @staticmethod
-    def plot_eigenvalues(eigenvalues: np.ndarray,
-                        title: str = "Eigenvalues",
-                        figsize: tuple = (10, 6)):
+    def plot_eigenvalues(
+        eigenvalues: np.ndarray, title: str = "Eigenvalues", figsize: tuple = (10, 6)
+    ):
         """
         Plot eigenvalue distribution.
         """
         import matplotlib.pyplot as plt
 
         plt.figure(figsize=figsize)
-        plt.plot(np.sort(eigenvalues), 'bo-', alpha=0.6)
-        plt.axhline(y=1, color='r', linestyle='--', label='λ=1')
-        plt.axhline(y=0, color='k', linestyle='--', label='λ=0')
+        plt.plot(np.sort(eigenvalues), "bo-", alpha=0.6)
+        plt.axhline(y=1, color="r", linestyle="--", label="λ=1")
+        plt.axhline(y=0, color="k", linestyle="--", label="λ=0")
         plt.xlabel("Index")
         plt.ylabel("Eigenvalue")
         plt.title(title)
@@ -209,16 +209,15 @@ class SpectralPlotter:
         plt.show()
 
     @staticmethod
-    def plot_spectral_gap_trace(gaps: List[float],
-                                title: str = "Spectral Gap Evolution"):
+    def plot_spectral_gap_trace(gaps: List[float], title: str = "Spectral Gap Evolution"):
         """
         Plot spectral gap over time.
         """
         import matplotlib.pyplot as plt
 
         plt.figure(figsize=(10, 6))
-        plt.plot(gaps, 'g-', linewidth=2)
-        plt.axhline(y=0.1, color='r', linestyle='--', label='Threshold')
+        plt.plot(gaps, "g-", linewidth=2)
+        plt.axhline(y=0.1, color="r", linestyle="--", label="Threshold")
         plt.xlabel("Time")
         plt.ylabel("Spectral Gap")
         plt.title(title)

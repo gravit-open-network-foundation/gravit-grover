@@ -21,10 +21,11 @@ from scipy.special import softmax
 @dataclass
 class MWUConfig:
     """Configuration for Multiplicative Weights"""
+
     learning_rate: float = 1.0  # η (eta) - learning rate
-    temperature: float = 1.0    # Temperature for softmax
-    min_prob: float = 1e-10     # Minimum probability (for numerical stability)
-    max_prob: float = 0.999     # Maximum probability
+    temperature: float = 1.0  # Temperature for softmax
+    min_prob: float = 1e-10  # Minimum probability (for numerical stability)
+    max_prob: float = 0.999  # Maximum probability
     use_entropy_regularization: bool = True
     entropy_coefficient: float = 0.1
 
@@ -38,9 +39,9 @@ class MultiplicativeWeights:
         self.config = config or MWUConfig()
         self.history = []
 
-    def update(self, probabilities: np.ndarray,
-               scores: np.ndarray,
-               return_entropy: bool = False) -> Union[np.ndarray, tuple]:
+    def update(
+        self, probabilities: np.ndarray, scores: np.ndarray, return_entropy: bool = False
+    ) -> Union[np.ndarray, tuple]:
         """
         Update probabilities based on received scores.
 
@@ -83,19 +84,21 @@ class MultiplicativeWeights:
             new_probs = (1 - alpha) * new_probs + alpha * uniform
 
         # Save history
-        self.history.append({
-            'probabilities': new_probs.copy(),
-            'scores': scores.copy(),
-            'entropy': self.compute_entropy(new_probs)
-        })
+        self.history.append(
+            {
+                "probabilities": new_probs.copy(),
+                "scores": scores.copy(),
+                "entropy": self.compute_entropy(new_probs),
+            }
+        )
 
         if return_entropy:
             return new_probs, self.compute_entropy(new_probs)
         return new_probs
 
-    def update_with_temperature(self, probabilities: np.ndarray,
-                               scores: np.ndarray,
-                               temperature: Optional[float] = None) -> np.ndarray:
+    def update_with_temperature(
+        self, probabilities: np.ndarray, scores: np.ndarray, temperature: Optional[float] = None
+    ) -> np.ndarray:
         """
         Update using temperature scaling (softmax approach).
         """
@@ -129,17 +132,16 @@ class MultiplicativeWeights:
         q = np.clip(q, 1e-10, 1.0)
         return np.sum(p * np.log(p / q))
 
-    def get_best_hypothesis(self, probabilities: np.ndarray,
-                           hypotheses: List[str]) -> str:
+    def get_best_hypothesis(self, probabilities: np.ndarray, hypotheses: List[str]) -> str:
         """
         Get the best hypothesis from the distribution.
         """
         best_idx = np.argmax(probabilities)
         return hypotheses[best_idx]
 
-    def get_top_k(self, probabilities: np.ndarray,
-                  hypotheses: List[str],
-                  k: int = 3) -> List[tuple]:
+    def get_top_k(
+        self, probabilities: np.ndarray, hypotheses: List[str], k: int = 3
+    ) -> List[tuple]:
         """
         Get top-K hypotheses with their probabilities.
         """
@@ -152,24 +154,24 @@ class AdaptiveMultiplicativeWeights(MultiplicativeWeights):
     Adaptive version of MWU with changing learning rate.
     """
 
-    def __init__(self, config: Optional[MWUConfig] = None,
-                 initial_lr: float = 1.0,
-                 lr_decay: float = 0.99):
+    def __init__(
+        self, config: Optional[MWUConfig] = None, initial_lr: float = 1.0, lr_decay: float = 0.99
+    ):
         super().__init__(config)
         self.initial_lr = initial_lr
         self.lr_decay = lr_decay
         self.current_lr = initial_lr
         self.step_count = 0
 
-    def update(self, probabilities: np.ndarray,
-               scores: np.ndarray,
-               adaptive: bool = True) -> np.ndarray:
+    def update(
+        self, probabilities: np.ndarray, scores: np.ndarray, adaptive: bool = True
+    ) -> np.ndarray:
         """
         Update with adaptive learning rate.
         """
         if adaptive:
             # Update learning rate
-            self.current_lr = self.initial_lr * (self.lr_decay ** self.step_count)
+            self.current_lr = self.initial_lr * (self.lr_decay**self.step_count)
             self.config.learning_rate = self.current_lr
             self.step_count += 1
 
@@ -187,17 +189,14 @@ class EnsembleWeights:
     Ensemble of multiple MWU experts.
     """
 
-    def __init__(self, n_experts: int = 3,
-                 learning_rates: Optional[List[float]] = None):
+    def __init__(self, n_experts: int = 3, learning_rates: Optional[List[float]] = None):
         self.n_experts = n_experts
         self.learning_rates = learning_rates or [0.5, 1.0, 2.0]
         self.experts = [
-            MultiplicativeWeights(MWUConfig(learning_rate=lr))
-            for lr in self.learning_rates
+            MultiplicativeWeights(MWUConfig(learning_rate=lr)) for lr in self.learning_rates
         ]
 
-    def update_ensemble(self, probabilities: np.ndarray,
-                       scores: np.ndarray) -> np.ndarray:
+    def update_ensemble(self, probabilities: np.ndarray, scores: np.ndarray) -> np.ndarray:
         """
         Update all experts and average results.
         """

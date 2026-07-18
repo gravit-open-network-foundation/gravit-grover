@@ -15,6 +15,7 @@ import numpy as np
 @dataclass
 class GossipMessage:
     """Gossip message structure."""
+
     sender: str
     recipients: List[str]
     timestamp: float
@@ -27,6 +28,7 @@ class GossipMessage:
 @dataclass
 class GossipState:
     """Node state for gossip protocol."""
+
     node_id: str
     version: int = 0
     data: Dict[str, Any] = field(default_factory=dict)
@@ -38,10 +40,9 @@ class GossipProtocol:
     Implements epidemic gossip for state propagation.
     """
 
-    def __init__(self, node_id: str,
-                 fanout: int = 3,
-                 interval: float = 1.0,
-                 max_messages: int = 1000):
+    def __init__(
+        self, node_id: str, fanout: int = 3, interval: float = 1.0, max_messages: int = 1000
+    ):
         self.node_id = node_id
         self.fanout = fanout
         self.interval = interval
@@ -102,10 +103,7 @@ class GossipProtocol:
                     continue
 
                 # Select random peers
-                peers = random.sample(
-                    list(self.peers),
-                    min(self.fanout, len(self.peers))
-                )
+                peers = random.sample(list(self.peers), min(self.fanout, len(self.peers)))
 
                 # Create gossip message
                 message = GossipMessage(
@@ -113,12 +111,12 @@ class GossipProtocol:
                     recipients=peers,
                     timestamp=time.time(),
                     payload={
-                        'node_id': self.node_id,
-                        'version': self.state.version,
-                        'data': self.state.data.copy(),
-                        'updates': self.pending_updates.copy()
+                        "node_id": self.node_id,
+                        "version": self.state.version,
+                        "data": self.state.data.copy(),
+                        "updates": self.pending_updates.copy(),
                     },
-                    message_id=f"{self.node_id}_{int(time.time())}_{random.randint(0, 1000)}"
+                    message_id=f"{self.node_id}_{int(time.time())}_{random.randint(0, 1000)}",
                 )
 
                 # Send to peers
@@ -144,9 +142,9 @@ class GossipProtocol:
                     sender=self.node_id,
                     recipients=list(self.peers),
                     timestamp=time.time(),
-                    payload={'type': 'heartbeat', 'node_id': self.node_id},
+                    payload={"type": "heartbeat", "node_id": self.node_id},
                     message_id=f"heartbeat_{self.node_id}_{int(time.time())}",
-                    ttl=1
+                    ttl=1,
                 )
 
                 for peer in self.peers:
@@ -166,17 +164,17 @@ class GossipProtocol:
         self.seen_messages.add(message.message_id)
         if len(self.seen_messages) > self.max_messages:
             # Clean old messages
-            self.seen_messages = set(list(self.seen_messages)[-self.max_messages//2:])
+            self.seen_messages = set(list(self.seen_messages)[-self.max_messages // 2 :])
 
         # Process message
-        if message.payload.get('type') == 'heartbeat':
+        if message.payload.get("type") == "heartbeat":
             await self._process_heartbeat(message)
         else:
             await self._process_update(message)
 
     async def _process_heartbeat(self, message: GossipMessage):
         """Process heartbeat message."""
-        sender = message.payload.get('node_id')
+        sender = message.payload.get("node_id")
         if sender and sender != self.node_id:
             self.add_peer(sender)
 
@@ -185,12 +183,12 @@ class GossipProtocol:
         sender = message.sender
 
         # Check version
-        remote_version = message.payload.get('version', 0)
+        remote_version = message.payload.get("version", 0)
         if remote_version <= self.state.version:
             return
 
         # Merge data
-        remote_data = message.payload.get('data', {})
+        remote_data = message.payload.get("data", {})
         self.state.data.update(remote_data)
         self.state.version = remote_version
         self.state.last_update = time.time()
@@ -199,8 +197,7 @@ class GossipProtocol:
         if message.hop_count < message.ttl:
             message.hop_count += 1
             peers = random.sample(
-                list(self.peers - {sender}),
-                min(self.fanout, len(self.peers) - 1)
+                list(self.peers - {sender}), min(self.fanout, len(self.peers) - 1)
             )
             for peer in peers:
                 await self.send_gossip(peer, message)
@@ -214,13 +211,13 @@ class GossipProtocol:
     def get_statistics(self) -> Dict[str, Any]:
         """Get gossip protocol statistics."""
         return {
-            'node_id': self.node_id,
-            'peers': len(self.peers),
-            'version': self.state.version,
-            'pending_updates': len(self.pending_updates),
-            'message_queue': len(self.message_queue),
-            'seen_messages': len(self.seen_messages),
-            'last_update': self.state.last_update
+            "node_id": self.node_id,
+            "peers": len(self.peers),
+            "version": self.state.version,
+            "pending_updates": len(self.pending_updates),
+            "message_queue": len(self.message_queue),
+            "seen_messages": len(self.seen_messages),
+            "last_update": self.state.last_update,
         }
 
 

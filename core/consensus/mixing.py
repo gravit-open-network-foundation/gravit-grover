@@ -56,7 +56,7 @@ class MixingMatrix:
         # For simplicity, approximate using series expansion
         # In practice, use scipy.linalg.expm
         I = np.eye(n)
-        W = I - beta * L + (beta ** 2 / 2) * L @ L
+        W = I - beta * L + (beta**2 / 2) * L @ L
 
         self.matrix = W
         return W
@@ -146,7 +146,7 @@ class MixingMatrix:
         """
         spectral_gap = self.compute_spectral_gap()
         if spectral_gap == 0:
-            return float('inf')
+            return float("inf")
         return np.log(1.0 / epsilon) / spectral_gap
 
     def compute_second_eigenvector(self) -> np.ndarray:
@@ -220,10 +220,7 @@ class AdaptiveMixing:
         self.mixing = MixingMatrix(self.adjacency)
         self.mixing.create_metropolis_hastings(self.adjacency)
 
-        self.history.append({
-            'time': len(self.history),
-            'adjacency': new_adjacency.copy()
-        })
+        self.history.append({"time": len(self.history), "adjacency": new_adjacency.copy()})
 
     def add_node(self, node_id: int, connections: List[int]):
         """
@@ -231,11 +228,11 @@ class AdaptiveMixing:
         """
         n = len(self.adjacency) + 1
         new_adj = np.zeros((n, n))
-        new_adj[:n-1, :n-1] = self.adjacency
+        new_adj[: n - 1, : n - 1] = self.adjacency
 
         for conn in connections:
-            new_adj[conn, n-1] = 1
-            new_adj[n-1, conn] = 1
+            new_adj[conn, n - 1] = 1
+            new_adj[n - 1, conn] = 1
 
         self.update_topology(new_adj)
 
@@ -250,8 +247,9 @@ class AdaptiveMixing:
         new_adj = self.adjacency[mask][:, mask]
         self.update_topology(new_adj)
 
-    def get_convergence_trajectory(self, state: np.ndarray,
-                                  max_iterations: int = 100) -> List[np.ndarray]:
+    def get_convergence_trajectory(
+        self, state: np.ndarray, max_iterations: int = 100
+    ) -> List[np.ndarray]:
         """
         Get trajectory of convergence.
         """

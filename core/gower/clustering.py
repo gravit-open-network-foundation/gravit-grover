@@ -15,8 +15,9 @@ import matplotlib.pyplot as plt
 @dataclass
 class ClusteringConfig:
     """Configuration for clustering."""
-    method: str = 'average'  # single, complete, average, ward
-    metric: str = 'precomputed'  # euclidean, cosine, precomputed
+
+    method: str = "average"  # single, complete, average, ward
+    metric: str = "precomputed"  # euclidean, cosine, precomputed
     threshold: float = 0.7
     min_cluster_size: int = 2
     max_clusters: int = 10
@@ -33,7 +34,7 @@ class HierarchicalClusterer:
         self.n_clusters = None
         self.linkage_matrix = None
 
-    def fit(self, similarity_matrix: np.ndarray) -> 'HierarchicalClusterer':
+    def fit(self, similarity_matrix: np.ndarray) -> "HierarchicalClusterer":
         """
         Fit clustering to similarity matrix.
         """
@@ -50,15 +51,14 @@ class HierarchicalClusterer:
 
         # Compute linkage
         self.linkage_matrix = linkage(
-            condensed,
-            method=self.config.method,
-            metric=self.config.metric
+            condensed, method=self.config.method, metric=self.config.metric
         )
 
         return self
 
-    def get_clusters(self, n_clusters: Optional[int] = None,
-                    threshold: Optional[float] = None) -> np.ndarray:
+    def get_clusters(
+        self, n_clusters: Optional[int] = None, threshold: Optional[float] = None
+    ) -> np.ndarray:
         """
         Get cluster labels.
         """
@@ -72,7 +72,7 @@ class HierarchicalClusterer:
         self.labels = fcluster(
             self.linkage_matrix,
             t=threshold if threshold < 1 else n_clusters,
-            criterion='distance' if threshold < 1 else 'maxclust'
+            criterion="distance" if threshold < 1 else "maxclust",
         )
 
         self.n_clusters = len(np.unique(self.labels))
@@ -123,8 +123,9 @@ class HierarchicalClusterer:
         unique, counts = np.unique(self.labels, return_counts=True)
         return {int(u): int(c) for u, c in zip(unique, counts)}
 
-    def get_cluster_representatives(self, hypotheses: List[str],
-                                   similarity_matrix: np.ndarray) -> Dict[int, str]:
+    def get_cluster_representatives(
+        self, hypotheses: List[str], similarity_matrix: np.ndarray
+    ) -> Dict[int, str]:
         """
         Get representative hypothesis for each cluster.
         """
@@ -145,21 +146,15 @@ class HierarchicalClusterer:
 
         return representatives
 
-    def plot_dendrogram(self, labels: Optional[List[str]] = None,
-                       figsize: tuple = (10, 6)):
+    def plot_dendrogram(self, labels: Optional[List[str]] = None, figsize: tuple = (10, 6)):
         """
         Plot dendrogram of hierarchical clustering.
         """
         plt.figure(figsize=figsize)
-        dendrogram(
-            self.linkage_matrix,
-            labels=labels,
-            leaf_rotation=90,
-            leaf_font_size=10
-        )
-        plt.title('Hierarchical Clustering Dendrogram')
-        plt.xlabel('Hypotheses')
-        plt.ylabel('Distance')
+        dendrogram(self.linkage_matrix, labels=labels, leaf_rotation=90, leaf_font_size=10)
+        plt.title("Hierarchical Clustering Dendrogram")
+        plt.xlabel("Hypotheses")
+        plt.ylabel("Distance")
         plt.tight_layout()
         plt.show()
 
@@ -171,10 +166,10 @@ class HierarchicalClusterer:
             self.get_clusters()
 
         stats = {
-            'n_clusters': self.n_clusters,
-            'cluster_sizes': self.get_cluster_sizes(),
-            'intra_cluster_similarity': {},
-            'inter_cluster_similarity': {}
+            "n_clusters": self.n_clusters,
+            "cluster_sizes": self.get_cluster_sizes(),
+            "intra_cluster_similarity": {},
+            "inter_cluster_similarity": {},
         }
 
         # Compute intra-cluster similarity
@@ -184,16 +179,16 @@ class HierarchicalClusterer:
             if len(indices) > 1:
                 cluster_sim = similarity_matrix[np.ix_(indices, indices)]
                 avg_sim = np.mean(cluster_sim[np.triu_indices_from(cluster_sim, k=1)])
-                stats['intra_cluster_similarity'][int(label)] = float(avg_sim)
+                stats["intra_cluster_similarity"][int(label)] = float(avg_sim)
 
         # Compute inter-cluster similarity
         for i, label1 in enumerate(unique_labels):
-            for label2 in unique_labels[i+1:]:
+            for label2 in unique_labels[i + 1 :]:
                 indices1 = np.where(self.labels == label1)[0]
                 indices2 = np.where(self.labels == label2)[0]
                 cluster_sim = np.mean(similarity_matrix[np.ix_(indices1, indices2)])
                 key = f"{int(label1)}_{int(label2)}"
-                stats['inter_cluster_similarity'][key] = float(cluster_sim)
+                stats["inter_cluster_similarity"][key] = float(cluster_sim)
 
         return stats
 
@@ -204,8 +199,7 @@ class ClusterEvaluator:
     """
 
     @staticmethod
-    def silhouette_score(similarity_matrix: np.ndarray,
-                        labels: np.ndarray) -> float:
+    def silhouette_score(similarity_matrix: np.ndarray, labels: np.ndarray) -> float:
         """
         Compute silhouette score for clustering.
         """
@@ -217,7 +211,7 @@ class ClusterEvaluator:
 
         for i in range(n):
             a_i = 0.0  # Mean similarity within cluster
-            b_i = float('inf')  # Mean similarity to nearest cluster
+            b_i = float("inf")  # Mean similarity to nearest cluster
 
             cluster_i = labels[i]
             cluster_indices = np.where(labels == cluster_i)[0]
@@ -240,14 +234,13 @@ class ClusterEvaluator:
         return np.mean(silhouette_scores)
 
     @staticmethod
-    def davies_bouldin_index(similarity_matrix: np.ndarray,
-                            labels: np.ndarray) -> float:
+    def davies_bouldin_index(similarity_matrix: np.ndarray, labels: np.ndarray) -> float:
         """
         Compute Davies-Bouldin index (lower is better).
         """
         unique_labels = np.unique(labels)
         if len(unique_labels) < 2:
-            return float('inf')
+            return float("inf")
 
         # Compute cluster centroids in similarity space
         centroids = {}
@@ -270,10 +263,9 @@ class ClusterEvaluator:
             for j in unique_labels:
                 if i != j:
                     centroid_dist = 1.0 - np.mean(
-                        similarity_matrix[np.ix_(
-                            np.where(labels == i)[0],
-                            np.where(labels == j)[0]
-                        )]
+                        similarity_matrix[
+                            np.ix_(np.where(labels == i)[0], np.where(labels == j)[0])
+                        ]
                     )
                     if centroid_dist > 0:
                         val = (intra_dist[i] + intra_dist[j]) / centroid_dist
