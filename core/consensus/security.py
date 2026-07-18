@@ -271,7 +271,7 @@ class SecureMessageHandler:
         self.seen_messages.add(message_id)
         if len(self.seen_messages) > self.max_seen_messages:
             # Clean old messages
-            self.seen_messages = set(list(self.seen_messages)[-self.max_seen_messages // 2:])
+            self.seen_messages = set(list(self.seen_messages)[-self.max_seen_messages // 2 :])
 
         # Verify sender identity
         sender = message.get("sender")
