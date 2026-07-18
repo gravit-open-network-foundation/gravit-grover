@@ -4,8 +4,9 @@ Mixing Matrix Module
 Implements mixing matrices for consensus protocols.
 """
 
+from typing import List, Optional, Tuple
+
 import numpy as np
-from typing import Optional, List, Tuple
 from scipy.linalg import eigvalsh
 
 
@@ -55,8 +56,8 @@ class MixingMatrix:
         # Compute matrix exponential
         # For simplicity, approximate using series expansion
         # In practice, use scipy.linalg.expm
-        I = np.eye(n)
-        W = I - beta * L + (beta**2 / 2) * L @ L
+        identity = np.eye(n)
+        W = identity - beta * L + (beta**2 / 2) * L @ L
 
         self.matrix = W
         return W
@@ -210,7 +211,7 @@ class AdaptiveMixing:
         self.adjacency = initial_adjacency.copy()
         self.mixing = MixingMatrix(self.adjacency)
         self.mixing.create_metropolis_hastings(self.adjacency)
-        self.history = []
+        self.history: List[dict] = []
 
     def update_topology(self, new_adjacency: np.ndarray):
         """
@@ -240,7 +241,6 @@ class AdaptiveMixing:
         """
         Remove node from topology.
         """
-        n = len(self.adjacency) - 1
         mask = np.ones(len(self.adjacency), dtype=bool)
         mask[node_id] = False
 

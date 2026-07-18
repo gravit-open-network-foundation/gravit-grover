@@ -40,7 +40,6 @@ class ConsistencyChecker:
         """
         if similarity_matrix is not None:
             # Use precomputed similarity
-            n_ref = len(reference_set)
             similarities = []
             for ref in reference_set:
                 similarities.append(similarity_matrix[hypothesis, ref])

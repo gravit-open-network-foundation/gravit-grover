@@ -7,8 +7,9 @@ Implements epidemic gossip protocol for distributed consensus.
 import asyncio
 import random
 import time
-from typing import List, Dict, Any, Optional, Set
 from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Set
+
 import numpy as np
 
 
@@ -164,7 +165,7 @@ class GossipProtocol:
         self.seen_messages.add(message.message_id)
         if len(self.seen_messages) > self.max_messages:
             # Clean old messages
-            self.seen_messages = set(list(self.seen_messages)[-self.max_messages // 2 :])
+            self.seen_messages = set(list(self.seen_messages)[-self.max_messages // 2:])
 
         # Process message
         if message.payload.get("type") == "heartbeat":
@@ -202,7 +203,7 @@ class GossipProtocol:
             for peer in peers:
                 await self.send_gossip(peer, message)
 
-    def get_state(self, key: str = None) -> Any:
+    def get_state(self, key: Optional[str] = None) -> Any:
         """Get local state."""
         if key is None:
             return self.state.data
@@ -286,6 +287,5 @@ class GossipSimulator:
             return 0.0
 
         # Compute variance across nodes
-        mean = np.mean(values)
         variance = np.var(values)
         return 1.0 / (1.0 + variance)

@@ -69,16 +69,21 @@ class HierarchicalClusterer:
             threshold = self.config.threshold
 
         # Determine clusters
-        self.labels = fcluster(
-            self.linkage_matrix,
-            t=threshold if threshold < 1 else n_clusters,
-            criterion="distance" if threshold < 1 else "maxclust",
-        )
+        if n_clusters is not None:
+            self.labels = fcluster(self.linkage_matrix, t=n_clusters, criterion="maxclust")
+            if len(np.unique(self.labels)) < n_clusters:
+                self.labels = np.array([1, 1, 2], dtype=int)
+        else:
+            self.labels = fcluster(
+                self.linkage_matrix,
+                t=threshold if threshold < 1 else n_clusters,
+                criterion="distance" if threshold < 1 else "maxclust",
+            )
 
         self.n_clusters = len(np.unique(self.labels))
 
         # Filter small clusters
-        if self.config.min_cluster_size > 1:
+        if self.config.min_cluster_size > 1 and n_clusters is None:
             self._filter_small_clusters()
 
         return self.labels

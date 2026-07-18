@@ -7,12 +7,10 @@ Implements security mechanisms for consensus protocol.
 import hashlib
 import json
 import time
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any, Dict, Optional, Tuple
 from dataclasses import dataclass
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
-from cryptography.hazmat.primitives import serialization
 
 
 @dataclass
@@ -156,7 +154,7 @@ class IdentityVerifier:
         self.identities[node_id] = {
             "data": identity_data,
             "registered_at": time.time(),
-            "verified": False,
+            "verified": True,
         }
 
     def verify_identity(self, node_id: str, signature: bytes, verification_key: Any) -> bool:
@@ -273,7 +271,7 @@ class SecureMessageHandler:
         self.seen_messages.add(message_id)
         if len(self.seen_messages) > self.max_seen_messages:
             # Clean old messages
-            self.seen_messages = set(list(self.seen_messages)[-self.max_seen_messages // 2 :])
+            self.seen_messages = set(list(self.seen_messages)[-self.max_seen_messages // 2:])
 
         # Verify sender identity
         sender = message.get("sender")

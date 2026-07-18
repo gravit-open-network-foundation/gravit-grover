@@ -45,6 +45,7 @@ class GowerDistance:
         self.config = config or GowerConfig()
         self.scalers = {}
         self.feature_types = {}
+        self.feature_ranges: Dict[int, float] = {}
 
     def fit(self, data: np.ndarray, feature_types: List[str]):
         """
@@ -72,6 +73,12 @@ class GowerDistance:
                 scaler.fit(data[:, numeric_indices])
                 self.scalers["numeric"] = scaler
 
+            for idx, feature_type in enumerate(feature_types):
+                if feature_type == "numeric":
+                    values = data[:, idx]
+                    feature_range = float(np.ptp(values)) if len(values) > 1 else 1.0
+                    self.feature_ranges[idx] = feature_range if feature_range > 0 else 1.0
+
         return self
 
     def compute_distance(self, x: np.ndarray, y: np.ndarray) -> float:
@@ -95,14 +102,9 @@ class GowerDistance:
             feature_type = self.feature_types[k]
 
             if feature_type == "numeric":
-                # Normalized absolute distance
-                if self.config.normalize_numeric:
-                    # Apply standardization
-                    # Simplified: use range
-                    range_val = 1.0  # In practice, this should be computed
-                else:
-                    range_val = 1.0
-                dist = abs(x[k] - y[k]) / range_val
+                range_val = self.feature_ranges.get(k, 1.0)
+                range_val = max(range_val, 1e-12)
+                dist = abs(float(x[k]) - float(y[k])) / range_val
 
             elif feature_type == "categorical":
                 # Distance: 0 if equal, 1 if different
@@ -235,4 +237,5 @@ class ConsistencyScorer:
 
         # Select hypotheses with high consistency
         indices = np.where(np.array(consistency_scores) >= self.threshold)[0]
-        return hypotheses[indices], consistency_scores
+        selected_scores = [consistency_scores[i] for i in indices]
+        return hypotheses[indices], selected_scores
