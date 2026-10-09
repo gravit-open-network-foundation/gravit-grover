@@ -2,9 +2,8 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![CI/CD Pipeline](https://github.com/GravitOpenNetwork/gravit-grover/actions/workflows/ci.yml/badge.svg)](https://github.com/GravitOpenNetwork/gravit-grover/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/GravitOpenNetwork/gravit-grover/branch/main/graph/badge.svg)](https://codecov.io/gh/GravitOpenNetwork/gravit-grover)
-[![GitHub stars](https://img.shields.io/github/stars/GravitOpenNetwork/gravit-grover)](https://github.com/GravitOpenNetwork/gravit-grover/stargazers)
+[![CI/CD Pipeline](https://github.com/gravit-open-network-foundation/gravit-grover/actions/workflows/ci.yml/badge.svg)](https://github.com/gravit-open-network-foundation/gravit-grover/actions/workflows/ci.yml)
+[![GitHub stars](https://img.shields.io/github/stars/gravit-open-network-foundation/gravit-grover)](https://github.com/gravit-open-network-foundation/gravit-grover/stargazers)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 **Distributed Epistemic Search Protocol**
@@ -75,7 +74,12 @@ p_v^{t+1}(h) = (p_v^t(h) · exp(η · score_v(h))) / Z_t
 
 where `η` is the learning rate and `Z_t` is the normalization constant.
 
-### Grover Amplification
+### Grover-inspired Amplification (classical)
+
+The name refers to the *inspiration*, amplitude amplification in Grover's quantum
+search algorithm (Grover, 1996). The mechanism here is **entirely classical**: the
+stake of nodes that agree with the network-wide consensus is rescaled with an
+exponent γ > 1. **No quantum speed-up is claimed.**
 
 Global amplification through aggregation:
 
@@ -109,13 +113,31 @@ where:
 λ(h) = (1/N) · Σ_v log(score_v(h))
 ```
 
+## Reproducibility
+
+The 10x Sybil experiment (100 honest nodes vs. 1000 Sybil nodes, 30 rounds,
+η=0.2, γ=1.5, ε=0.1, fanout 10) is fully reproducible:
+
+```bash
+python -m simulations.simulate_sybil   # fixed seed 20260709
+```
+
+It checks the success criteria (Confidence(true) > 0.90, Confidence(false) < 0.10,
+Sybil stake share < 5% at round 9) and rewrites
+`experiments/results/sybil-10x-g1.5.json`. CI runs it on every change and fails if
+the file differs by a single byte. `core/engine/grover_engine.py` implements one
+protocol round from the library modules; `tests/test_grover_engine.py` checks it
+against the multiplicative-weights module and the original simulation maths.
+
+**Status:** `network/` (gRPC node) is experimental and not yet wired to the engine.
+
 ## Quick Start
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/GravitOpenNetwork/gravit-grover.git
+git clone https://github.com/gravit-open-network-foundation/gravit-grover.git
 cd gravit-grover
 
 # Create virtual environment
@@ -319,7 +341,7 @@ If you use Gravit Grover in your research, please cite:
   author={GravitOpenNetwork},
   journal={arXiv preprint},
   year={2024},
-  url={https://github.com/GravitOpenNetwork/gravit-grover}
+  url={https://github.com/gravit-open-network-foundation/gravit-grover}
 }
 ```
 

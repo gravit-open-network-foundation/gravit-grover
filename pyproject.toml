@@ -46,10 +46,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/GravitOpenNetwork/gravit-grover"
-Documentation = "https://gravitopen.github.io/gravit-grover"
-Repository = "https://github.com/GravitOpenNetwork/gravit-grover"
-Issues = "https://github.com/GravitOpenNetwork/gravit-grover/issues"
+Homepage = "https://github.com/gravit-open-network-foundation/gravit-grover"
+Documentation = "https://github.com/gravit-open-network-foundation/gravit-grover"
+Repository = "https://github.com/gravit-open-network-foundation/gravit-grover"
+Issues = "https://github.com/gravit-open-network-foundation/gravit-grover/issues"
 
 [tool.black]
 line-length = 100
