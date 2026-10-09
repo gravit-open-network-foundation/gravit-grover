@@ -10,7 +10,8 @@ GQRVP 10x Sybil attack simulation
 Success criteria: Confidence(true) > 0.90 and Confidence(false) < 0.10 after
 30 rounds, Sybil stake share < 5% at round 9.
 
-Reproducible: fixed seed, output written next to this repository
+Reproducible: fixed seed, values written with 12 significant digits (float
+sums differ in the last bits between CPUs), output in this repository
 (experiments/results/sybil-10x-g1.5.json). CI regenerates the file and fails
 if it differs by a single byte.
 """
@@ -45,6 +46,15 @@ def run_simulation(seed: int = SEED) -> List[Dict[str, float]]:
     return engine.run(initial_state(engine), ROUNDS, honest=honest)
 
 
+def rounded(history: List[Dict[str, float]], digits: int = 12) -> List[Dict[str, float]]:
+    """12 significant digits: float sums differ in the last bits between CPUs and
+    BLAS builds (macOS vs. Linux); this keeps the file identical across platforms."""
+    return [
+        {k: (float(f"{v:.{digits}g}") if isinstance(v, float) else v) for k, v in row.items()}
+        for row in history
+    ]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     ap.add_argument("--seed", type=int, default=SEED)
@@ -62,7 +72,7 @@ def main() -> int:
         print(f"{'PASS' if ok else 'FAIL'}  {name}: {value:.4f}")
 
     a.out.parent.mkdir(parents=True, exist_ok=True)
-    a.out.write_text(json.dumps(history, indent=2) + "\n", encoding="utf-8")
+    a.out.write_text(json.dumps(rounded(history), indent=2) + "\n", encoding="utf-8")
     print(
         f"wrote {a.out.relative_to(Path.cwd()) if a.out.is_relative_to(Path.cwd()) else a.out} (seed {a.seed})"
     )
