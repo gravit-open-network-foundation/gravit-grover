@@ -44,6 +44,12 @@ jobs:
       run: |
         pytest tests/ -v --cov=core --cov-report=xml --cov-report=html
 
+    - name: Experiment is reproducible (results must match byte for byte)
+      run: |
+        python -m simulations.simulate_sybil
+        python -m simulations.theta_calibration
+        git diff --exit-code experiments/results/
+
     - name: Upload coverage to Codecov
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
