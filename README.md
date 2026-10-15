@@ -12,6 +12,8 @@ Gravit Grover is a decentralized protocol for finding optimal hypotheses through
 - **Gower Similarity Layer**: geometric representation of the hypothesis space
 - **Multiplicative Weights**: probabilistic reweighting based on local scores
 - **Grover Amplification**: enhancement of globally consistent hypotheses
+
+> **Note on the name:** Gravit Grover is a classical algorithm and runs on ordinary computers. It borrows only the idea of Grover's quantum search: repeatedly amplifying the weight of candidates that pass a global consistency check. It uses no quantum hardware and claims no quantum speed-up.
 - **Gossip Consensus**: distributed synchronization without a central coordinator
 
 ## Architecture
